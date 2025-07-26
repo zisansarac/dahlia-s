@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart'; // Onboarding bitince buraya geçeceğiz
+import 'package:shared_preferences/shared_preferences.dart';
+import '../theme.dart';
+import 'register_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -9,94 +11,75 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+  final PageController _controller = PageController();
+  int _currentIndex = 0;
 
-  final List<Map<String, String>> onboardingData = [
+  final List<Map<String, String>> pages = [
     {
-      "image": "assets/images/onboarding1.png",
-      "title": "İşlerini kolayca yönet",
-      "subtitle": "Siparişlerini kolayca takip et, işini büyütmeye odaklan.",
+      'title': 'Hoş Geldin!',
+      'description': 'Kadın girişimciler için özel olarak tasarlandı.',
+      'image': 'assets/images/onboarding1.png',
     },
     {
-      "image": "assets/images/onboarding2.png",
-      "title": "Kadın emeğiyle ilham ver",
-      "subtitle": "dahlia’s, kadın girişimcilerin yoluna ışık tutar.",
+      'title': 'Kolay Takip',
+      'description': 'Siparişlerini kolayca kontrol et, yönet.',
+      'image': 'assets/images/onboarding2.png',
     },
     {
-      "image": "assets/images/onboarding3.png",
-      "title": "Herkes için sade ve güçlü",
-      "subtitle": "İşini düzenle, müşterini mutlu et, Dahlia’s senin yanında.",
+      'title': 'Şimdi Başla!',
+      'description': 'Haydi başlayalım!',
+      'image': 'assets/images/onboarding3.png',
     },
   ];
 
-  void _nextPage() {
-    if (_currentPage < onboardingData.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      _finishOnboarding();
-    }
-  }
-
-  void _finishOnboarding() {
+  Future<void> _completeOnboarding() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_seen', true);
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
+      MaterialPageRoute(builder: (context) => const RegisterPage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
+      backgroundColor: AppTheme.backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            Align(
-              alignment: Alignment.topRight,
-              child: TextButton(
-                onPressed: _finishOnboarding,
-                child: const Text(
-                  "Atla",
-                  style: TextStyle(color: Color(0xFFC2581A)),
-                ),
-              ),
-            ),
             Expanded(
               child: PageView.builder(
-                controller: _pageController,
-                itemCount: onboardingData.length,
+                controller: _controller,
+                itemCount: pages.length,
                 onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
+                  setState(() => _currentIndex = index);
                 },
                 itemBuilder: (context, index) {
+                  final page = pages[index];
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image.asset(
-                          onboardingData[index]["image"]!,
-                          height: 300,
-                        ),
-                        const SizedBox(height: 32),
+                        Image.asset(page['image']!, height: 280),
+                        const SizedBox(height: 40),
                         Text(
-                          onboardingData[index]["title"]!,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFC2581A),
+                          page['title']!,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            color: AppTheme.primaryColor,
+                            fontWeight: FontWeight.w700,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         Text(
-                          onboardingData[index]["subtitle"]!,
-                          style: const TextStyle(fontSize: 15),
+                          page['description']!,
                           textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.textColor,
+                          ),
                         ),
                       ],
                     ),
@@ -104,54 +87,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 },
               ),
             ),
+            const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                onboardingData.length,
+                pages.length,
                 (index) => AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: _currentPage == index ? 24 : 8,
+                  margin: const EdgeInsets.symmetric(horizontal: 6),
+                  width: _currentIndex == index ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _currentPage == index
-                        ? Color(0xFFC2581A)
-                        : Colors.grey[300],
+                    color: _currentIndex == index
+                        ? AppTheme.primaryColor
+                        : AppTheme.primaryColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: _currentPage > 0
-                      ? () => _pageController.previousPage(
+            const SizedBox(height: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppTheme.borderRadius),
+                  ),
+                  backgroundColor: AppTheme.primaryColor,
+                ),
+                onPressed: _currentIndex == pages.length - 1
+                    ? _completeOnboarding
+                    : () {
+                        _controller.nextPage(
                           duration: const Duration(milliseconds: 300),
                           curve: Curves.easeInOut,
-                        )
-                      : null,
-                  child: Text(
-                    "Geri",
-                    style: TextStyle(
-                      color: _currentPage > 0 ? Color(0xFFC2581A) : Colors.grey,
-                    ),
-                  ),
+                        );
+                      },
+                child: Text(
+                  _currentIndex == pages.length - 1 ? "Başla" : "İleri",
+                  style: theme.textTheme.labelLarge,
                 ),
-                TextButton(
-                  onPressed: _nextPage,
-                  child: Text(
-                    _currentPage == onboardingData.length - 1
-                        ? "Başlayalım"
-                        : "İleri",
-                    style: const TextStyle(color: Color(0xFFC2581A)),
-                  ),
-                ),
-              ],
+              ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
         ),
       ),
