@@ -1,0 +1,85 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+
+class WomenMapPage extends StatefulWidget {
+  const WomenMapPage({super.key});
+
+  @override
+  State<WomenMapPage> createState() => _WomenMapPageState();
+}
+
+class _WomenMapPageState extends State<WomenMapPage> {
+  late GoogleMapController _mapController;
+  Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchEntrepreneurs();
+  }
+
+  Future<void> _fetchEntrepreneurs() async {
+    final response =
+        await http.get(Uri.parse('http://10.0.2.2:3000/api/women-map'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+
+      Set<Marker> loadedMarkers = data.map((item) {
+        return Marker(
+          markerId: MarkerId(item['id'].toString()),
+          position: LatLng(
+            (item['lat'] as num).toDouble(),
+            (item['lng'] as num).toDouble(),
+          ),
+          infoWindow: InfoWindow(
+            title: item['name'],
+            snippet: '${item['city']} - ${item['description']}',
+          ),
+        );
+      }).toSet();
+
+      setState(() {
+        _markers = loadedMarkers;
+      });
+    } else {
+      print("Veri alınamadı: ${response.statusCode}");
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDF6F0),
+      appBar: AppBar(
+        title: const Text(
+          "Kadın Girişimci Haritası",
+          style: TextStyle(
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: GoogleMap(
+        initialCameraPosition: const CameraPosition(
+          target: LatLng(39.925533, 32.866287),
+          zoom: 5.5,
+        ),
+        markers: _markers,
+        onMapCreated: (controller) {
+          _mapController = controller;
+        },
+      ),
+    );
+  }
+}

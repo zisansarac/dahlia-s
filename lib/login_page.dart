@@ -41,6 +41,12 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', data['token']);
         await prefs.setString('username', _usernameController.text);
+        await prefs.setBool(
+          'is_female_entrepreneur',
+          data['is_female_entrepreneur'] ?? false,
+        );
+
+        await prefs.setInt('user_id', data['user_id']);
 
         Navigator.pushReplacementNamed(context, '/orders');
       } else {

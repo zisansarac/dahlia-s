@@ -15,18 +15,30 @@ class OrderListPage extends StatefulWidget {
 
 class _OrderListPageState extends State<OrderListPage>
     with SingleTickerProviderStateMixin {
+  bool isFemaleEntrepreneur = false;
+
   List<dynamic> orders = [];
   String username = '';
   String _searchQuery = '';
   late TabController _tabController;
 
   @override
+  @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this); // 3 tab!
     checkLoginStatus();
     loadUsername();
+    loadUserInfo();
     fetchOrders();
+  }
+
+  Future<void> loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      username = prefs.getString('username') ?? '';
+      isFemaleEntrepreneur = prefs.getBool('is_female_entrepreneur') ?? false;
+    });
   }
 
   Future<void> checkLoginStatus() async {
@@ -114,11 +126,9 @@ class _OrderListPageState extends State<OrderListPage>
     return orders.where((order) {
       final createdAt = order['created_at'];
       final createdDate = DateTime.tryParse(createdAt ?? '');
-
       if (createdDate == null) return false;
 
       final difference = now.difference(createdDate).inDays;
-
       final isToday = difference < 2;
       final isOld = difference >= 2;
 
@@ -127,9 +137,9 @@ class _OrderListPageState extends State<OrderListPage>
           .toLowerCase()
           .contains(_searchQuery);
 
-      final tabMatch = selectedTab == 0 ? isToday : isOld;
-
-      return nameMatch && tabMatch;
+      if (selectedTab == 0) return isToday && nameMatch; // Bugün
+      if (selectedTab == 1) return isOld && nameMatch; // Bekleyen
+      return nameMatch; // Tümü (index 2)
     }).toList();
   }
 
@@ -252,6 +262,69 @@ class _OrderListPageState extends State<OrderListPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDF6F0),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Color(0xFFB34700)),
+              child: Text(
+                'Menü',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontFamily: 'Montserrat',
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.list_alt),
+              title: const Text('Siparişlerim'),
+              onTap: () {
+                Navigator.pop(context); // Menüyü kapat
+              },
+            ),
+            if (isFemaleEntrepreneur)
+              ListTile(
+                leading: const Icon(Icons.woman),
+                title: const Text('Kadın Girişimcilere Özel'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, '/women_in_science');
+                },
+              ),
+            if (isFemaleEntrepreneur)
+              ListTile(
+                leading: const Icon(Icons.map),
+                title: const Text('Kadın Girişimci Haritası'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, 'api/women-map');
+                },
+              ),
+
+            ListTile(
+              leading: const Icon(Icons.groups),
+              title: const Text('Topluluk'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.pushNamed(context, 'api/community');
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text('Çıkış Yap'),
+              onTap: () async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.clear();
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+          ],
+        ),
+      ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -260,32 +333,22 @@ class _OrderListPageState extends State<OrderListPage>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.menu, size: 28),
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: const Icon(Icons.menu, size: 28),
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    ),
+                  ),
                   Image.asset("assets/images/logo.png", height: 65),
-                  PopupMenuButton<String>(
-                    icon: const CircleAvatar(
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.pushNamed(context, '/profile');
+                    },
+                    child: const CircleAvatar(
                       backgroundImage: AssetImage("assets/images/avatar.jpg"),
                     ),
-                    onSelected: (value) async {
-                      if (value == 'profile') {
-                        Navigator.pushNamed(context, '/profile');
-                      } else if (value == 'logout') {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.remove('token');
-                        await prefs.remove('username');
-                        Navigator.pushReplacementNamed(context, '/login');
-                      }
-                    },
-                    itemBuilder: (BuildContext context) => [
-                      const PopupMenuItem<String>(
-                        value: 'profile',
-                        child: Text('Profilim'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'logout',
-                        child: Text('Çıkış Yap'),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -335,14 +398,6 @@ class _OrderListPageState extends State<OrderListPage>
                     'Siparişlerim',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _searchQuery = ''; // Arama kutusunu sıfırla
-                      });
-                    },
-                    child: const Text('Hepsini Gör'),
-                  ),
                 ],
               ),
             ),
@@ -350,12 +405,14 @@ class _OrderListPageState extends State<OrderListPage>
               controller: _tabController,
               indicatorColor: Theme.of(context).primaryColor,
               labelColor: Colors.black,
+              onTap: (_) => setState(() {}),
               tabs: const [
                 Tab(text: 'Bugün'),
                 Tab(text: 'Bekleyen'),
+                Tab(text: 'Tümü'),
               ],
-              onTap: (_) => setState(() {}),
             ),
+
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.only(top: 12),

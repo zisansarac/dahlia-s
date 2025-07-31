@@ -62,45 +62,103 @@ class _AddOrderPageState extends State<AddOrderPage> {
     }
   }
 
+  InputDecoration buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(fontFamily: 'Montserrat'),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFFDDDDDD)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFFB34700)),
+      ),
+      contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Yeni Sipariş')),
+      backgroundColor: const Color(0xFFFDF6F0),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFFDF6F0),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Color(0xFFB34700)),
+        title: const Text(
+          'Yeni Sipariş',
+          style: TextStyle(
+            color: Color(0xFFB34700),
+            fontFamily: 'Montserrat',
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 controller: _customerName,
-                decoration: const InputDecoration(labelText: 'Müşteri Adı'),
+                decoration: buildInputDecoration('Müşteri Adı'),
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _productName,
-                decoration: const InputDecoration(labelText: 'Ürün Adı'),
+                decoration: buildInputDecoration('Ürün Adı'),
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _price,
-                decoration: const InputDecoration(labelText: 'Fiyat'),
+                decoration: buildInputDecoration('Fiyat'),
                 keyboardType: TextInputType.number,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _address,
-                decoration: const InputDecoration(labelText: 'Adres'),
+                decoration: buildInputDecoration('Adres'),
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _cargoCompany,
-                decoration: const InputDecoration(labelText: 'Kargo Firması'),
+                decoration: buildInputDecoration('Kargo Firması'),
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _trackingNumber,
-                decoration: const InputDecoration(labelText: 'Takip No'),
+                decoration: buildInputDecoration('Takip No'),
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: submitOrder,
-                child: const Text('Siparişi Ekle'),
+              const SizedBox(height: 32),
+              SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: submitOrder,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFB34700),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Siparişi Ekle',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
