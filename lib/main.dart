@@ -23,6 +23,24 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
+class SmoothScrollBehavior extends ScrollBehavior {
+  const SmoothScrollBehavior();
+
+  @override
+  Widget buildViewportChrome(
+    BuildContext context,
+    Widget child,
+    AxisDirection axisDirection,
+  ) {
+    return child;
+  }
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics(); // iOS benzeri yumuşak scroll
+  }
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -30,6 +48,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sipariş Takip',
+      scrollBehavior: const SmoothScrollBehavior(),
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme, // ← Temayı buradan çağırıyoruz
       initialRoute: '/',

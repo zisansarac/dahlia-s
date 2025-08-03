@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:siparis_app/theme.dart'; // Tema dosyasını import et
 
 class WomenInSciencePage extends StatefulWidget {
   const WomenInSciencePage({super.key});
@@ -59,7 +60,7 @@ class _WomenInSciencePageState extends State<WomenInSciencePage> {
     super.dispose();
   }
 
-  Widget _buildSlide(Map<String, String> woman) {
+  Widget _buildSlide(Map<String, String> woman, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -77,31 +78,25 @@ class _WomenInSciencePageState extends State<WomenInSciencePage> {
           Text(
             '"${woman['quote']}"',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 18,
+            style: theme.textTheme.bodyLarge?.copyWith(
               fontStyle: FontStyle.italic,
-              fontFamily: 'Montserrat',
-              color: Colors.black87,
+              color: AppTheme.textColor,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             '- ${woman['name']}',
-            style: const TextStyle(
-              fontSize: 16,
+            style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              fontFamily: 'Montserrat',
-              color: Color(0xFFB34700),
+              color: AppTheme.primaryColor,
             ),
           ),
           const SizedBox(height: 10),
           Text(
             woman['bio']!,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
+            style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.black54,
-              fontFamily: 'Montserrat',
             ),
           ),
         ],
@@ -111,21 +106,17 @@ class _WomenInSciencePageState extends State<WomenInSciencePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFFDF6F0),
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
+        leading: BackButton(color: AppTheme.primaryColor),
+        title: Text(
           'Kadın Girişimcilere Özel',
-          style: TextStyle(
-            fontFamily: 'Montserrat',
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: AppTheme.textColor,
           ),
         ),
         centerTitle: true,
@@ -134,7 +125,7 @@ class _WomenInSciencePageState extends State<WomenInSciencePage> {
         controller: _pageController,
         itemCount: womenInScience.length,
         itemBuilder: (context, index) {
-          return _buildSlide(womenInScience[index]);
+          return _buildSlide(womenInScience[index], theme);
         },
       ),
     );

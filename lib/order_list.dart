@@ -23,7 +23,6 @@ class _OrderListPageState extends State<OrderListPage>
   late TabController _tabController;
 
   @override
-  @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this); // 3 tab!
