@@ -1,16 +1,18 @@
-# Dahlia's - Kadın Girişimciler İçin Sipariş Takip Uygulaması
+### 🌸 Dahlia’s – Order Tracking App for Women Entrepreneurs
 
-## Proje Hakkında
-Dahlia's, kadın girişimcilerin iş süreçlerini kolaylaştırmak amacıyla tasarlanmış, estetik ve kullanıcı dostu bir sipariş takip uygulamasıdır. Flutter ile geliştirilmiş ve MySQL + Node.js backend kullanmaktadır.
+#### 💡 About the Project  
+**Dahlia’s** is a stylish and user-friendly order tracking application designed to support women entrepreneurs in managing their business operations efficiently.  
+Built with **Flutter** and powered by a **Node.js + MySQL** backend.
 
-## Özellikler
-- Kullanıcı dostu arayüz
-- Sipariş oluşturma, takip ve güncelleme
-- JWT ile güvenli giriş ve oturum yönetimi
-- Proje tasarımında estetik ve modern UI/UX prensipleri
+#### ✨ Features  
+- Intuitive and modern user interface  
+- Create, track, and update orders easily  
+- Secure authentication and session management with **JWT**  
+- Aesthetic and modern **UI/UX** design principles  
 
-## Teknolojiler
-- Flutter (Frontend)
-- Node.js (Backend)
-- MySQL (Veritabanı)
-- JWT (Kimlik doğrulama)
+
+#### 🛠️ Tech Stack  
+- **Frontend:** Flutter  
+- **Backend:** Node.js  
+- **Database:** MySQL  
+- **Authentication:** JWT  
